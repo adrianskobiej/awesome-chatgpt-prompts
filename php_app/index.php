@@ -474,7 +474,25 @@ $isAdmin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true;
         function adminLogin(){
             const login=document.getElementById('adminLogin').value;
             const pass=document.getElementById('adminPassword').value;
-            fetch('login.php',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:`login=${encodeURIComponent(login)}&password=${encodeURIComponent(pass)}`}).then(r=>r.json()).then(d=>{if(d.success){isAdminLoggedIn=true;loggedInUser=null;showMessage('Zalogowano jako Admin','success');updateUI();}else{showMessage('Nieprawidłowy login lub hasło admina.','error');}});
+            fetch('login.php',{
+                method:'POST',
+                headers:{'Content-Type':'application/x-www-form-urlencoded'},
+                body:`login=${encodeURIComponent(login)}&password=${encodeURIComponent(pass)}`
+            })
+            .then(r=>r.json())
+            .then(d=>{
+                if(d.success){
+                    isAdminLoggedIn=true;
+                    loggedInUser=null;
+                    showMessage('Zalogowano jako Admin','success');
+                    updateUI();
+                }else{
+                    showMessage('Nieprawidłowy login lub hasło admina.','error');
+                }
+            })
+            .catch(()=>{
+                showMessage('Błąd połączenia z serwerem.','error');
+            });
         }
 
         function userLogin(){
