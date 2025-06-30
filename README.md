@@ -773,3 +773,4 @@ Many thanks to these AI whisperers:
 # License
 
 CC-0
+\n## PHP Example Webapp\nA simple PHP version of the leaderboard application is located in the `php_app` directory. Launch it with any PHP server, e.g. `php -S localhost:8000 -t php_app`. It demonstrates keeping the admin password server-side.
