@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prosty Leaderboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 p-6">
+  <div class="max-w-xl mx-auto">
+    <h1 class="text-2xl font-bold mb-4 text-center">Leaderboard</h1>
+
+    <div id="loginPanel" class="mb-6">
+      <h2 class="font-semibold mb-2">Logowanie Admina</h2>
+      <input id="adminLogin" type="text" placeholder="Login" class="w-full mb-2 p-2 rounded bg-gray-800">
+      <input id="adminPassword" type="password" placeholder="Hasło" class="w-full mb-2 p-2 rounded bg-gray-800">
+      <button onclick="adminLogin()" class="bg-blue-600 px-3 py-1 rounded">Zaloguj</button>
+    </div>
+
+    <div id="adminPanel" class="hidden mb-6">
+      <h2 class="font-semibold mb-2">Dodaj uczestnika</h2>
+      <input id="newParticipant" type="text" placeholder="Imię" class="w-full mb-2 p-2 rounded bg-gray-800">
+      <button onclick="addParticipant()" class="bg-green-600 px-3 py-1 rounded">Dodaj</button>
+      <button onclick="logout()" class="bg-gray-600 px-3 py-1 rounded ml-2">Wyloguj</button>
+    </div>
+
+    <h2 class="font-semibold mb-2">Uczestnicy</h2>
+    <ul id="list" class="space-y-1"></ul>
+  </div>
+
+<script>
+let token = localStorage.getItem('adminToken') || null;
+
+async function adminLogin() {
+  const username = document.getElementById('adminLogin').value;
+  const password = document.getElementById('adminPassword').value;
+  const res = await fetch('/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  });
+  if (res.ok) {
+    const data = await res.json();
+    token = data.token;
+    localStorage.setItem('adminToken', token);
+    document.getElementById('loginPanel').classList.add('hidden');
+    document.getElementById('adminPanel').classList.remove('hidden');
+  } else {
+    alert('Błędne dane logowania');
+  }
+}
+
+async function logout() {
+  if (token) {
+    await fetch('/logout', { method: 'POST', headers: { Authorization: token } });
+  }
+  localStorage.removeItem('adminToken');
+  token = null;
+  document.getElementById('loginPanel').classList.remove('hidden');
+  document.getElementById('adminPanel').classList.add('hidden');
+}
+
+async function addParticipant() {
+  const name = document.getElementById('newParticipant').value.trim();
+  if (!name) return;
+  const res = await fetch('/participants', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: token },
+    body: JSON.stringify({ name })
+  });
+  if (res.ok) {
+    document.getElementById('newParticipant').value = '';
+    loadParticipants();
+  } else {
+    alert('Błąd podczas dodawania');
+  }
+}
+
+async function loadParticipants() {
+  const res = await fetch('/participants');
+  const data = await res.json();
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+  data.forEach(p => {
+    const li = document.createElement('li');
+    li.textContent = `${p.name} - ${p.points} pkt`;
+    list.appendChild(li);
+  });
+}
+
+window.addEventListener('load', () => {
+  if (token) {
+    document.getElementById('loginPanel').classList.add('hidden');
+    document.getElementById('adminPanel').classList.remove('hidden');
+  }
+  loadParticipants();
+});
+</script>
+</body>
+</html>
