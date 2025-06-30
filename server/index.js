@@ -1,5 +1,6 @@
 const express = require('express');
 const fs = require('fs');
+const path = require('path');
 const crypto = require('crypto');
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -31,6 +32,8 @@ function saveData() {
 }
 
 app.use(express.json());
+// serve static files from ../public
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 function authenticate(req, res, next) {
   const token = req.headers['authorization'];
@@ -74,6 +77,11 @@ app.post('/participants', authenticate, (req, res) => {
   data.participants.push(participant);
   saveData();
   res.status(201).json(participant);
+});
+
+// fallback to index.html for other GET requests (SPA support)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
 app.listen(PORT, () => {

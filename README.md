@@ -773,3 +773,16 @@ Many thanks to these AI whisperers:
 # License
 
 CC-0
+
+## Leaderboard Demo
+
+This repository now includes a very small example of an Express backend with a
+matching static frontend. To run it locally:
+
+```bash
+cd server
+npm install     # may require internet access
+npm start
+```
+
+Then open `http://localhost:3000` to see the demo leaderboard page.
